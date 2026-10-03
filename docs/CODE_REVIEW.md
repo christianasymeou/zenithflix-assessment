@@ -4,13 +4,12 @@ This review covers the three highest-impact issues in the `ContentBrowser` snipp
 
 **Contents**
 
+- [Code under review](#code-under-review)
 - [Summary](#summary)
-- [Issue 1 — Unvalidated API data crashes the entire page](#issue-1--unvalidated-api-data-crashes-the-entire-page)
-- [Issue 2 — Content tiles cannot be reached or opened by keyboard](#issue-2--content-tiles-cannot-be-reached-or-opened-by-keyboard)
-- [Issue 3 — Modal has no focus management]
+- [Issue 1 — API data crash](#issue-1--unvalidated-api-data-crashes-the-entire-page)
+- [Issue 2 — Keyboard access](#issue-2--content-tiles-cannot-be-reached-or-opened-by-keyboard)
+- [Issue 3 — Modal focus](#issue-3--modal-has-no-focus-management)
 
-
-(#issue-3--modal-has-no-focus-management)
 
 ## Summary
 
