@@ -16,10 +16,11 @@ A streaming platform front end built with **Next.js 16 (App Router), React 19, T
 - **Watch history:** progress saved per title in localStorage, shown as progress bars on tiles and in the popup, updating live
 - **Continue Watching** row and page, most recently watched first
 - **Resume playback** (beyond the brief): reopening a started title continues where you stopped; titles watched to 98% or more start over
+- **Wide screens:** content width is capped, so tiles stay a sensible size on ultrawide monitors
 
 ## Setup
 
-Requirements: Node.js 20 or later.
+Requirements: Node.js 22.22+ or 24.15+ (developed on Node 24). The app itself runs on Node 20.9+, but the test tools (Vitest, jsdom) need the newer versions.
 
 ```bash
 npm install
@@ -30,11 +31,29 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Testing
 
-Tests use **Vitest** and **React Testing Library**.
+Tests use **Vitest** and **React Testing Library**: 49 tests across 7 files.
 
 ```bash
-npm test
+npm test          # watch mode
+npx vitest run    # run once
 ```
+
+**What's covered:**
+
+- **ContentModal:** focus moves in, Tab/Shift+Tab wrap, Escape and Close return focus to the tile, backdrop click, scroll lock. *Edge case:* a title with no genres, cast or runtime.
+- **ContentRow:** opening a title with the keyboard, loading, empty and error states, Retry focus, Show all / Show less.
+- **useWatchHistory:** *edge cases:* five kinds of corrupted storage, invalid values, blocked localStorage (falls back to memory), sync across components and tabs.
+- **fetchContent:** malformed API responses return an empty list (Code Review Issue 1).
+- **VideoPlayer:** resume position, finished titles restart, progress reported on pause and close, error message.
+
+**Test decisions:**
+
+- Elements are found by role and accessible name, the way a screen reader sees them, not by CSS classes.
+- The video player is replaced with a stand-in in the modal tests, so each component is tested on its own.
+- Edge cases focus on what breaks in production: bad data, blocked storage and focus management.
+- I checked that the tests catch real bugs by breaking the code on purpose. Each break made the right test fail. The tests also found a real bug: the "Show less" button's screen-reader name was missing a space.
+
+**Not covered:** real-browser end-to-end tests (e.g. Playwright). These behaviours were checked manually in Chrome.
 
 ## Architecture
 
@@ -42,7 +61,8 @@ npm test
 - **Mock API:** `app/api/content/route.ts` returns 16 titles with an 800ms delay so the loading state is visible
 - **Data fetching:** `lib/fetchContent.ts` validates the response before it reaches the UI
 - **Watch history:** `hooks/useWatchHistory.ts` stores progress in localStorage using `useSyncExternalStore`, so every component and other open tabs stay in sync
-- **Components** (each with its own CSS Module): `Header`, `ContentRow`, `ContentTile`, `SkeletonTile`, `ContentModal`, `VideoPlayer`
+- **Shared state:** `CatalogProvider` (in the layout) loads the catalog once, so switching pages doesn't reload it, and hosts the movie popup so any page can open a title. `CatalogRows` connects the Trending and Continue Watching rows to the catalog and watch history.
+- **Components** (each with its own CSS Module): `SiteHeader`, `ContentRow`, `ContentTile`, `SkeletonTile`, `ContentModal`, `VideoPlayer`
 - **Data and types:** `data/content.json`, `types/content.ts`
 - **Theme:** shared colours, spacing and base styles in `app/globals.css`
 
@@ -72,10 +92,19 @@ All three fixes are applied in the app itself.
 
 ## Assumptions
 
-- **Sample data:** the brief shows one sample item (Dune) as the data shape. I created 16 titles in that shape, including Dune with the same details (only the image is changed).
+- **Sample data:** the brief shows one sample item (Dune) as the data shape. I created 16 titles in that shape, including Dune with the same details. Only the image and video differ: the sample's image is a grey placeholder and its video URL (`example.com`) doesn't point to a real file.
 - **Watch history:** a title appears in Continue Watching once you've watched part of it. History is per browser, since there are no real user accounts. It keeps the 50 most recent titles and recovers from corrupted or blocked storage.
 - **Durations vs. progress:** the duration shown in the popup is the real film's runtime, for information only. Progress is based on the length of the sample video actually playing.
 - **Shared videos:** each video is used by about five titles, but progress is stored separately for each title.
+
+**UX assumptions:**
+
+- **Rows start with 5 titles:** on desktop, 5 tiles fill the screen exactly. "Show all" expands the row into a grid of every title, so the first screen stays uncluttered while everything is one click away.
+- **Opening isn't watching:** a title only enters Continue Watching once it has actually played (or been skipped forward), not just by opening the popup.
+- **Continue Watching placement:** it sits below Trending on Home and shows a short hint when it's empty, so first-time visitors know what it's for.
+- **Finished titles:** at 98% or more a title counts as finished and starts from the beginning, instead of resuming in the end credits. It stays in Continue Watching with a full progress bar.
+- **Titles on posters:** since the posters are stock photos without text, each shows the title on the image (like a real poster) and as a caption underneath (like streaming apps). Screen readers hear the title once.
+- **Separate pages per menu item:** Trending and Continue Watching are real pages rather than tabs on one page, so the Back button, bookmarks and browser-tab titles work as users expect.
 
 ## Images and videos
 
@@ -116,4 +145,3 @@ All three fixes are applied in the app itself.
 ## Known limitations
 
 - **No captions:** real content would need subtitles (WCAG 1.2.2).
-- **Very wide screens:** on ultrawide monitors the tiles become very large; a maximum page width would fix this.
