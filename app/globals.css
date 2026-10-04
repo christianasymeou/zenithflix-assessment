@@ -28,9 +28,13 @@
   color-scheme: dark;
 }
 
+/* On wide screens the gutter grows so content never exceeds --content-max:
+   tiles stop growing and everything stays centred, while backgrounds (like
+   the header's) still span the full width */
 @media (min-width: 1024px) {
   :root {
-    --gutter: var(--space-lg);
+    --content-max: 1600px;
+    --gutter: max(var(--space-lg), (100vw - var(--content-max)) / 2);
   }
 }
 

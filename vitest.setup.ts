@@ -7,3 +7,8 @@ import { afterEach } from "vitest";
 afterEach(() => {
   cleanup();
 });
+
+// jsdom doesn't implement media playback and logs an error for every call.
+// Components only need these to exist; tests that care about them spy on them.
+HTMLMediaElement.prototype.pause = () => {};
+HTMLMediaElement.prototype.play = () => Promise.resolve();

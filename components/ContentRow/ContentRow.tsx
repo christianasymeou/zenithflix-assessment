@@ -115,11 +115,13 @@ export function ContentRow({
           >
             {expanded ? (
               <>
-                Show less<span className="visually-hidden"> {title}</span>
+                Show less{" "}
+                <span className="visually-hidden">{title}</span>
               </>
             ) : (
               <>
-                Show all<span className="visually-hidden"> {title}</span> ({items.length})
+                Show all{" "}
+                <span className="visually-hidden">{title}</span> ({items.length})
               </>
             )}
           </button>
