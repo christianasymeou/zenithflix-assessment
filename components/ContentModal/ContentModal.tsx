@@ -161,6 +161,7 @@ export function ContentModal({ item, onClose, onProgress, progress = 0 }: Conten
             poster={item.thumbnail}
             label={`${item.title} preview`}
             onProgress={onProgress}
+            startAt={progress}
           />
 
           <div className={styles.body}>

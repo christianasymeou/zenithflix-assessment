@@ -11,6 +11,10 @@ import styles from "./VideoPlayer.module.css";
 // interval so consumers (e.g. a localStorage write) aren't called on every tick
 const PROGRESS_INTERVAL_MS = 1000;
 
+// At or past this point a title counts as finished, so it starts over
+// instead of resuming in the last seconds of the credits
+const FINISHED_PERCENT = 98;
+
 /** Percentage watched, or null while the duration is unknown */
 function percentWatched(video: HTMLVideoElement): number | null {
   const { currentTime, duration } = video;
@@ -26,12 +30,26 @@ interface VideoPlayerProps {
   label: string;
   /** Called with the percentage watched (0–100), throttled */
   onProgress?: (percent: number) => void;
+  /** Percentage to resume from (0–100); 0 or a finished title starts at the beginning */
+  startAt?: number;
 }
 
-export function VideoPlayer({ src, poster, label, onProgress }: VideoPlayerProps) {
+export function VideoPlayer({ src, poster, label, onProgress, startAt = 0 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const lastReportRef = useRef(0);
   const [failed, setFailed] = useState(false);
+  // Read once, on mount: startAt keeps changing while the video plays (the
+  // history updates every second) and must not make the player jump around
+  const [resumeAt] = useState(startAt);
+
+  // The duration is unknown until metadata loads, so the jump happens here
+  const handleLoadedMetadata = () => {
+    const video = videoRef.current;
+    if (!video || !Number.isFinite(video.duration)) return;
+    if (resumeAt > 0 && resumeAt < FINISHED_PERCENT) {
+      video.currentTime = (video.duration * resumeAt) / 100;
+    }
+  };
 
   // Reads the latest onProgress without making it an effect dependency
   const reportFinalProgress = useEffectEvent((video: HTMLVideoElement) => {
@@ -91,6 +109,7 @@ export function VideoPlayer({ src, poster, label, onProgress }: VideoPlayerProps
         onTimeUpdate={() => reportProgress(false)}
         onPause={() => reportProgress(true)}
         onEnded={() => reportProgress(true)}
+        onLoadedMetadata={handleLoadedMetadata}
         onError={() => setFailed(true)}
       />
     </div>
