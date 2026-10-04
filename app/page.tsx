@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { ContentModal } from "@/components/ContentModal/ContentModal";
 import { ContentRow } from "@/components/ContentRow/ContentRow";
 import { fetchContent } from "@/lib/fetchContent";
 import type { ContentItem } from "@/types/content";
@@ -13,6 +14,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   // Incrementing this re-runs the fetch effect (used by Retry)
   const [requestId, setRequestId] = useState(0);
+  const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -44,34 +46,31 @@ export default function Home() {
     setRequestId((id) => id + 1);
   };
 
-  const handleSelect = (item: ContentItem) => {
-    // Placeholder until the modal is built
-    console.log("Selected:", item.title);
-  };
+  // Stable identity: the modal's focus-trap effect depends on it, and a new
+  // function each render would re-run that effect and steal focus
+  const handleClose = useCallback(() => setSelectedItem(null), []);
 
   return (
     <main className={styles.main}>
       <h1 className={styles.title}>ZenithFlix</h1>
 
       {/* Always rendered so screen readers register it before its text changes */}
-      <p className={styles.visuallyHidden} aria-live="polite">
+      <p className="visually-hidden" aria-live="polite">
         {loading ? "Loading content…" : ""}
       </p>
 
-      {error ? (
-        <div className={styles.error}>
-          <p role="alert">{error}</p>
-          <button type="button" className={styles.retry} onClick={handleRetry}>
-            Retry
-          </button>
-        </div>
-      ) : (
-        <ContentRow
-          title="Trending Now"
-          items={trending}
-          loading={loading}
-          onSelect={handleSelect}
-        />
+      <ContentRow
+        title="Trending Now"
+        items={trending}
+        loading={loading}
+        error={error}
+        onRetry={handleRetry}
+        onSelect={setSelectedItem}
+      />
+
+      {selectedItem && (
+        // key: a fresh modal (and video player state) for each title
+        <ContentModal key={selectedItem.id} item={selectedItem} onClose={handleClose} />
       )}
     </main>
   );

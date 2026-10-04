@@ -12,17 +12,49 @@
   transition: transform var(--transition-fast);
 }
 
+/* The poster frame: the overlay title is positioned over the image, and the
+   frame's width drives the overlay's font size (container query units) */
+.art {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  container-type: inline-size;
+  transition: box-shadow var(--transition-fast);
+}
+
 .poster {
   width: 100%;
   height: auto;
   aspect-ratio: 2 / 3;
   object-fit: cover;
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  transition: box-shadow var(--transition-fast);
 }
 
-.title {
+/* Across the top of the poster. The gradient keeps white text readable
+   over any photo, light or dark. */
+.overlay {
+  position: absolute;
+  inset: 0 0 auto;
+  padding: var(--space-sm) var(--space-sm) 3rem;
+  background: linear-gradient(to bottom, rgb(0 0 0 / 0.9), rgb(0 0 0 / 0.5) 50%, transparent);
+  color: var(--color-text);
+  font-size: clamp(0.875rem, 9cqi, 1.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.6);
+}
+
+/* Long titles wrap to two lines, then truncate. On its own element because
+   the clamp can't hide text that spills into the overlay's padding. */
+.overlayText {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.caption {
   display: block;
   margin-top: var(--space-sm);
   font-size: 0.875rem;
@@ -39,11 +71,11 @@
     transform: scale(1.05);
   }
 
-  .tile:hover .poster {
+  .tile:hover .art {
     box-shadow: 0 8px 24px rgb(0 0 0 / 0.6);
   }
 
-  .tile:hover .title {
+  .tile:hover .caption {
     color: var(--color-text);
   }
 }
@@ -55,17 +87,17 @@
   transform: scale(1.05);
 }
 
-.tile:focus-visible .poster {
+.tile:focus-visible .art {
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.6);
 }
 
-.tile:focus-visible .title {
+.tile:focus-visible .caption {
   color: var(--color-text);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tile,
-  .poster {
+  .art {
     transition: none;
   }
 
