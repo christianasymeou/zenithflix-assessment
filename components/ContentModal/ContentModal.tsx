@@ -1,4 +1,11 @@
-import { useEffect, useId, useRef, type MouseEvent, type PointerEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  type CSSProperties,
+  type MouseEvent,
+  type PointerEvent,
+} from "react";
 import { VideoPlayer } from "@/components/VideoPlayer/VideoPlayer";
 import { formatDuration } from "@/lib/formatDuration";
 import type { ContentItem } from "@/types/content";
@@ -19,9 +26,11 @@ interface ContentModalProps {
   /** Must be stable (useCallback): it is an effect dependency */
   onClose: () => void;
   onProgress?: (percent: number) => void;
+  /** Percentage already watched (0–100); updates live during playback */
+  progress?: number;
 }
 
-export function ContentModal({ item, onClose, onProgress }: ContentModalProps) {
+export function ContentModal({ item, onClose, onProgress, progress = 0 }: ContentModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const pointerDownOnBackdrop = useRef(false);
@@ -179,6 +188,18 @@ export function ContentModal({ item, onClose, onProgress }: ContentModalProps) {
                 </li>
                 {duration && <li>{duration}</li>}
               </ul>
+
+              {progress > 0 && (
+                <div className={styles.watched}>
+                  {/* The text says the same thing, so the bar is decorative */}
+                  <span
+                    className={styles.watchedBar}
+                    style={{ "--progress": `${progress}%` } as CSSProperties}
+                    aria-hidden="true"
+                  />
+                  <span>{Math.max(1, Math.round(progress))}% watched</span>
+                </div>
+              )}
 
               {item.genre.length > 0 && (
                 <ul className={styles.genres} aria-label="Genres">

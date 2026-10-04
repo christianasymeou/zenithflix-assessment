@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import styles from "./VideoPlayer.module.css";
 
 // Native HTML5 <video> was chosen over a YouTube/Vimeo embed because it fires
@@ -10,6 +10,14 @@ import styles from "./VideoPlayer.module.css";
 // timeupdate fires roughly 4 times a second; report progress at most once per
 // interval so consumers (e.g. a localStorage write) aren't called on every tick
 const PROGRESS_INTERVAL_MS = 1000;
+
+/** Percentage watched, or null while the duration is unknown */
+function percentWatched(video: HTMLVideoElement): number | null {
+  const { currentTime, duration } = video;
+  // duration is NaN before metadata loads and Infinity for live streams
+  if (!Number.isFinite(duration) || duration <= 0) return null;
+  return Math.min(100, (currentTime / duration) * 100);
+}
 
 interface VideoPlayerProps {
   src: string;
@@ -25,10 +33,21 @@ export function VideoPlayer({ src, poster, label, onProgress }: VideoPlayerProps
   const lastReportRef = useRef(0);
   const [failed, setFailed] = useState(false);
 
-  // Stop playback when the player unmounts (e.g. the modal closes)
+  // Reads the latest onProgress without making it an effect dependency
+  const reportFinalProgress = useEffectEvent((video: HTMLVideoElement) => {
+    const percent = percentWatched(video);
+    if (percent !== null) onProgress?.(percent);
+  });
+
+  // When the player unmounts (e.g. the modal closes): save the exact final
+  // position, which the throttle may not have reported yet, then stop playback
   useEffect(() => {
     const video = videoRef.current;
-    return () => video?.pause();
+    return () => {
+      if (!video) return;
+      reportFinalProgress(video);
+      video.pause();
+    };
   }, []);
 
   // `force` bypasses the throttle for pause/ended, so the final position
@@ -37,15 +56,14 @@ export function VideoPlayer({ src, poster, label, onProgress }: VideoPlayerProps
     const video = videoRef.current;
     if (!video || !onProgress) return;
 
-    const { currentTime, duration } = video;
-    // duration is NaN before metadata loads and Infinity for live streams
-    if (!Number.isFinite(duration) || duration <= 0) return;
+    const percent = percentWatched(video);
+    if (percent === null) return;
 
     const now = Date.now();
     if (!force && now - lastReportRef.current < PROGRESS_INTERVAL_MS) return;
     lastReportRef.current = now;
 
-    onProgress(Math.min(100, Math.round((currentTime / duration) * 100)));
+    onProgress(percent);
   };
 
   if (failed) {

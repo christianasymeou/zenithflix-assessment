@@ -89,6 +89,30 @@
   color: var(--color-text-muted);
 }
 
+.watched {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.watchedBar {
+  flex: 0 1 160px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 0.2);
+  overflow: hidden;
+}
+
+.watchedBar::after {
+  content: "";
+  display: block;
+  width: max(var(--progress), 4px);
+  height: 100%;
+  background: var(--color-accent);
+}
+
 .genres {
   display: flex;
   flex-wrap: wrap;

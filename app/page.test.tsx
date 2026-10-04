@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { CatalogProvider } from "@/components/CatalogProvider/CatalogProvider";
 import Home from "./page";
 
 describe("Home page", () => {
@@ -11,7 +12,11 @@ describe("Home page", () => {
     // Never resolves: this test only checks the static shell
     vi.stubGlobal("fetch", vi.fn(() => new Promise(() => {})));
 
-    render(<Home />);
+    render(
+      <CatalogProvider>
+        <Home />
+      </CatalogProvider>,
+    );
 
     expect(
       screen.getByRole("heading", { level: 1, name: "ZenithFlix" }),

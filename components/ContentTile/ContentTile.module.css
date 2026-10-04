@@ -54,6 +54,24 @@
   overflow: hidden;
 }
 
+/* Watch progress: a track along the bottom edge of the poster, filled to
+   --progress (set inline from the watch history) */
+.progress {
+  position: absolute;
+  inset: auto 0 0;
+  height: 4px;
+  background: rgb(255 255 255 / 0.3);
+}
+
+.progress::after {
+  content: "";
+  display: block;
+  /* A minimum width, so a title watched for a few seconds still shows a mark */
+  width: max(var(--progress), 6px);
+  height: 100%;
+  background: var(--color-accent);
+}
+
 .caption {
   display: block;
   margin-top: var(--space-sm);

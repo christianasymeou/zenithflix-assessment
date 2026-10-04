@@ -16,7 +16,14 @@ interface ContentRowProps {
   /** When set, the row shows this message and a Retry button instead of tiles */
   error?: string | null;
   onRetry?: () => void;
+  /** Watch progress per title (0–100), shown as a bar on each tile */
+  getProgress?: (id: number) => number;
+  emptyMessage?: string;
   skeletonCount?: number;
+  /** "row": collapsed row with a Show all toggle. "grid": every title, always. */
+  layout?: "row" | "grid";
+  /** 1 when the row is the page's main content (its own page), otherwise 2 */
+  headingLevel?: 1 | 2;
 }
 
 export function ContentRow({
@@ -26,7 +33,11 @@ export function ContentRow({
   onSelect,
   error = null,
   onRetry,
+  getProgress,
+  emptyMessage = "Nothing to show here right now. Check back soon.",
   skeletonCount = 6,
+  layout = "row",
+  headingLevel = 2,
 }: ContentRowProps) {
   // Unique per instance, so several rows on one page never share an id
   const headingId = useId();
@@ -34,8 +45,10 @@ export function ContentRow({
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [expanded, setExpanded] = useState(false);
 
-  const canExpand = !loading && !error && items.length > COLLAPSED_COUNT;
-  const visibleItems = expanded ? items : items.slice(0, COLLAPSED_COUNT);
+  const Heading = headingLevel === 1 ? "h1" : "h2";
+  const showGrid = layout === "grid" || expanded;
+  const canExpand = layout === "row" && !loading && !error && items.length > COLLAPSED_COUNT;
+  const visibleItems = showGrid ? items : items.slice(0, COLLAPSED_COUNT);
 
   // The Retry button disappears once clicked; without this, focus would fall
   // back to <body> and keyboard users would restart from the top of the page
@@ -58,21 +71,26 @@ export function ContentRow({
     );
   } else if (loading) {
     content = (
-      <ul className={styles.list} aria-hidden="true">
+      <ul className={layout === "grid" ? styles.grid : styles.list} aria-hidden="true">
         {Array.from({ length: skeletonCount }, (_, index) => (
           <SkeletonTile key={index} />
         ))}
       </ul>
     );
   } else if (items.length === 0) {
-    content = <p className={styles.empty}>Nothing to show here right now. Check back soon.</p>;
+    content = <p className={styles.empty}>{emptyMessage}</p>;
   } else {
     // Collapsed: the first few titles in a horizontal row (it scrolls on
     // smaller screens). Expanded: every title in a wrapping grid.
     content = (
-      <ul id={listId} className={expanded ? styles.grid : styles.list}>
+      <ul id={listId} className={showGrid ? styles.grid : styles.list}>
         {visibleItems.map((item) => (
-          <ContentTile key={item.id} item={item} onSelect={onSelect} />
+          <ContentTile
+            key={item.id}
+            item={item}
+            onSelect={onSelect}
+            progress={getProgress?.(item.id)}
+          />
         ))}
       </ul>
     );
@@ -82,9 +100,9 @@ export function ContentRow({
     <section className={styles.section} aria-labelledby={headingId}>
       <div className={styles.header}>
         {/* tabIndex -1: focusable from code (after Retry), not a Tab stop */}
-        <h2 id={headingId} ref={headingRef} tabIndex={-1} className={styles.heading}>
+        <Heading id={headingId} ref={headingRef} tabIndex={-1} className={styles.heading}>
           {title}
-        </h2>
+        </Heading>
 
         {/* Next to the heading, so keyboard users reach it before the tiles */}
         {canExpand && (

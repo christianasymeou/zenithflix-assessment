@@ -5,9 +5,7 @@
   padding-block: var(--space-lg);
 }
 
-.title {
-  padding-inline: var(--gutter);
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--color-accent);
+/* Focus lands here from "Skip to content"; no outline on a whole region */
+.main:focus {
+  outline: none;
 }
