@@ -20,9 +20,18 @@
   --space-lg: 2rem;
   --space-xl: 4rem;
 
+  /* Horizontal page padding, shared so headings and rows line up */
+  --gutter: var(--space-md);
+
   --transition-fast: 150ms ease;
 
   color-scheme: dark;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --gutter: var(--space-lg);
+  }
 }
 
 /* Minimal reset */

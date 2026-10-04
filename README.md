@@ -11,6 +11,10 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+## Testing
+
+Tests use **Vitest** and **React Testing Library**.
+
 ## Architecture
 
 _To be completed._

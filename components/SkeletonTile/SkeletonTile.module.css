@@ -1,0 +1,43 @@
+/* Same footprint as ContentTile, so nothing shifts when real tiles arrive */
+.item {
+  flex: 0 0 var(--tile-width);
+}
+
+.block {
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    var(--color-surface-hover) 50%,
+    var(--color-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.poster {
+  aspect-ratio: 2 / 3;
+}
+
+.title {
+  width: 70%;
+  height: 0.875rem;
+  margin-top: var(--space-sm);
+  border-radius: var(--radius-sm);
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .block {
+    animation: none;
+    background: var(--color-surface);
+  }
+}

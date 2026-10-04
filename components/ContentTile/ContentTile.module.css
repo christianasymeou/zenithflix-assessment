@@ -1,0 +1,76 @@
+/* Width comes from --tile-width, set responsively by ContentRow */
+.item {
+  flex: 0 0 var(--tile-width);
+  scroll-snap-align: start;
+}
+
+.tile {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border-radius: var(--radius-md);
+  transition: transform var(--transition-fast);
+}
+
+.poster {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  transition: box-shadow var(--transition-fast);
+}
+
+.title {
+  display: block;
+  margin-top: var(--space-sm);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Only scale on devices that can truly hover, so taps on touch screens
+   don't leave a tile stuck in its hover state */
+@media (hover: hover) {
+  .tile:hover {
+    transform: scale(1.05);
+  }
+
+  .tile:hover .poster {
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.6);
+  }
+
+  .tile:hover .title {
+    color: var(--color-text);
+  }
+}
+
+/* Keyboard focus gets the same lift plus a high-contrast outline */
+.tile:focus-visible {
+  outline: 3px solid var(--color-text);
+  outline-offset: 4px;
+  transform: scale(1.05);
+}
+
+.tile:focus-visible .poster {
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.6);
+}
+
+.tile:focus-visible .title {
+  color: var(--color-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .poster {
+    transition: none;
+  }
+
+  .tile:hover,
+  .tile:focus-visible {
+    transform: none;
+  }
+}

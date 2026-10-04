@@ -1,0 +1,51 @@
+/* --tile-width is inherited by ContentTile and SkeletonTile, so the row
+   alone decides tile size at each breakpoint */
+.section {
+  --tile-width: 140px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 640px) {
+  .section {
+    --tile-width: 180px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section {
+    --tile-width: 220px;
+  }
+}
+
+.heading {
+  padding-inline: var(--gutter);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+@media (min-width: 1024px) {
+  .heading {
+    font-size: 1.5rem;
+  }
+}
+
+.list {
+  display: flex;
+  gap: var(--space-md);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  /* Vertical padding leaves room for the hover scale and focus outline,
+     which would otherwise be clipped by the scroll container */
+  padding: var(--space-md) var(--gutter);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+.empty {
+  padding: var(--space-md) var(--gutter);
+  color: var(--color-text-muted);
+}
