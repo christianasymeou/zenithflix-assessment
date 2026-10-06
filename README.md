@@ -17,6 +17,7 @@ A streaming platform front end built with **Next.js 16 (App Router), React 19, T
 - **Continue Watching** row and page, most recently watched first
 - **Resume playback** (beyond the brief): reopening a started title continues where you stopped; titles watched to 98% or more start over
 - **Wide screens:** content width is capped, so tiles stay a sensible size on ultrawide monitors
+- **Account menu:** avatar in the top-right with "Signed in as User", a link to watch history, Clear watch history (with confirmation) and a Sign out placeholder for future accounts
 
 ## Setup
 
@@ -31,7 +32,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Testing
 
-Tests use **Vitest** and **React Testing Library**: 49 tests across 7 files.
+Tests use **Vitest** and **React Testing Library**: 56 tests across 8 files.
 
 ```bash
 npm test          # watch mode
@@ -45,6 +46,7 @@ npx vitest run    # run once
 - **useWatchHistory:** *edge cases:* five kinds of corrupted storage, invalid values, blocked localStorage (falls back to memory), sync across components and tabs.
 - **fetchContent:** malformed API responses return an empty list (Code Review Issue 1).
 - **VideoPlayer:** resume position, finished titles restart, progress reported on pause and close, error message.
+- **ProfileMenu:** opens and closes with `aria-expanded`, Escape returns focus to the avatar, closes when clicking or tabbing outside, Clear watch history asks for confirmation (Cancel keeps it). *Edge case:* Clear is disabled when there's nothing to clear.
 
 **Test decisions:**
 
@@ -62,7 +64,7 @@ npx vitest run    # run once
 - **Data fetching:** `lib/fetchContent.ts` validates the response before it reaches the UI
 - **Watch history:** `hooks/useWatchHistory.ts` stores progress in localStorage using `useSyncExternalStore`, so every component and other open tabs stay in sync
 - **Shared state:** `CatalogProvider` (in the layout) loads the catalog once, so switching pages doesn't reload it, and hosts the movie popup so any page can open a title. `CatalogRows` connects the Trending and Continue Watching rows to the catalog and watch history.
-- **Components** (each with its own CSS Module): `SiteHeader`, `ContentRow`, `ContentTile`, `SkeletonTile`, `ContentModal`, `VideoPlayer`
+- **Components** (each with its own CSS Module): `SiteHeader`, `ProfileMenu`, `ContentRow`, `ContentTile`, `SkeletonTile`, `ContentModal`, `VideoPlayer`
 - **Data and types:** `data/content.json`, `types/content.ts`
 - **Theme:** shared colours, spacing and base styles in `app/globals.css`
 
