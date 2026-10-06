@@ -3,8 +3,13 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  display: flex;
-  flex-wrap: wrap;
+  /* Phones: logo and account menu on the first line, links below.
+     Wider screens: logo, links and account menu on one line. */
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    "logo . profile"
+    "nav nav nav";
   align-items: center;
   gap: var(--space-xs) var(--space-lg);
   padding: var(--space-sm) var(--gutter);
@@ -14,6 +19,7 @@
 }
 
 .logo {
+  grid-area: logo;
   font-size: 1.5rem;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -21,11 +27,14 @@
   border-radius: var(--radius-sm);
 }
 
-/* Phones: the menu gets its own line below the logo and scrolls sideways if
-   it ever needs more room than the screen has */
+/* Scrolls sideways if the links ever need more room than the screen has */
 .nav {
-  flex: 1 1 100%;
+  grid-area: nav;
   min-width: 0;
+}
+
+.profile {
+  grid-area: profile;
 }
 
 .links {
@@ -83,8 +92,8 @@
 }
 
 @media (min-width: 640px) {
-  .nav {
-    flex: 0 1 auto;
+  .header {
+    grid-template-areas: "logo nav profile";
   }
 
   .link {

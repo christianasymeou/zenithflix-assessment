@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ProfileMenu } from "@/components/ProfileMenu/ProfileMenu";
 import styles from "./SiteHeader.module.css";
 
 const NAV_LINKS = [
@@ -40,6 +41,10 @@ export function SiteHeader() {
           ))}
         </ul>
       </nav>
+
+      <div className={styles.profile}>
+        <ProfileMenu />
+      </div>
     </header>
   );
 }

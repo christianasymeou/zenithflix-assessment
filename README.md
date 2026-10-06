@@ -145,3 +145,4 @@ All three fixes are applied in the app itself.
 ## Known limitations
 
 - **No captions:** real content would need subtitles (WCAG 1.2.2).
+- **Design tokens aren't used everywhere:** most colours, spacing and corner radii come from the theme variables in `app/globals.css`, but a few overlay colours, shadows and one breakpoint are hard-coded in component styles. Moving them into the theme would make the design fully adjustable from one file.

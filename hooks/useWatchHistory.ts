@@ -151,5 +151,7 @@ export function useWatchHistory() {
     writeRaw(JSON.stringify(next));
   }, []);
 
-  return { entries, getProgress, recordProgress };
+  const clearHistory = useCallback(() => writeRaw(JSON.stringify({})), []);
+
+  return { entries, getProgress, recordProgress, clearHistory };
 }
