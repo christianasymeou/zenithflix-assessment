@@ -4,12 +4,10 @@ This review covers the three highest-impact issues in the `ContentBrowser` snipp
 
 **Contents**
 
-- [Code under review](#code-under-review)
 - [Summary](#summary)
 - [Issue 1 — API data crash](#issue-1--unvalidated-api-data-crashes-the-entire-page)
 - [Issue 2 — Keyboard access](#issue-2--content-tiles-cannot-be-reached-or-opened-by-keyboard)
 - [Issue 3 — Modal focus](#issue-3--modal-has-no-focus-management)
-
 
 ## Summary
 
@@ -151,7 +149,7 @@ After:
 
 - A native button is focusable, responds to both Enter and Space, has the right role, and works with voice control ("click Dune") and switch devices, all without extra code.
 - Rebuilding that on a `div` takes several attributes plus a key handler, and it's easy to miss a piece (Space is the one most often forgotten).
-- The `<ul>`/`<li>` structure lets screen readers announce "list, 15 items", which tells users how big the row is.
+- The `<ul>`/`<li>` structure lets screen readers announce "list, 16 items", which tells users how big the row is.
 - The title is a `<span>` rather than an `<h3>` because headings aren't valid inside a `<button>`.
 
 **Why it matters:**
@@ -262,6 +260,8 @@ function ContentModal({ item, onClose }: { item: ContentItem; onClose: () => voi
 ```
 
 `useId()` also fixes a smaller bug: the hardcoded `id="modal-title"` would be duplicated if two instances of this component were ever rendered on the same page. The same applies to `trending-heading`.
+
+**Note:** The implementation in `components/ContentModal/ContentModal.tsx` goes further than this sketch. While building it, I found that a `<video>`'s built-in controls all report as the `<video>` element itself, so wrapping Tab "on the last element" would skip all but the first control. The real version lets Tab move through the controls normally and uses a `focusin` guard to pull focus back if it leaves the dialog. It also locks background scrolling and only closes on a backdrop click when both the press and release happen on the backdrop.
 
 The native `<dialog>` element with `showModal()` is a valid alternative. It makes the background **inert**, so content behind the dialog can't be focused, clicked or read by screen readers, and it handles Escape automatically. The manual version is shown here because it makes each behaviour explicit and testable.
 
